@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>audioZorro v0.1 — Niezależny Agent Zakupowy Hi-Fi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --off-black: #111111;
+    --dark: #1a1a1a;
+    --mid: #2a2a2a;
+    --border: #333333;
+    --muted: #555555;
+    --text: #ddd8cc;
+    --text-dim: #7a7060;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6030;
+    --pink: #f542e3;
+    --white: #f0ece4;
+    --accent: #8b2020;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 15vw, 180px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-title span { color: var(--pink); }
+
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(16px, 2.5vw, 24px);
+    font-style: italic;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin-bottom: 60px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 60px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .hero-meta-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .hero-meta-item strong {
+    display: block;
+    color: var(--gold);
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .hero-mask {
+    position: absolute;
+    right: 60px;
+    bottom: 60px;
+    font-size: 220px;
+    line-height: 1;
+    opacity: 0.18;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    animation: fadeUp 1.2s 1s forwards;
+  }
+
+  .hero-mask .mask-a { color: var(--white); }
+  .hero-mask .mask-z { color: var(--pink); }
+
+  /* ─── GOLD BAR (hero CTA → sticky nav) ─── */
+  .gold-bar {
+    display: flex;
+    align-items: center;
+    background: var(--gold);
+    margin-top: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+    position: relative;
+    z-index: 100;
+    transition: all 0.35s ease;
+  }
+
+  .gold-bar.is-sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin-top: 0;
+    opacity: 1 !important;
+    animation: none;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.6);
+  }
+
+  /* CTA link — visible only before sticky */
+  .gold-bar-cta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+    padding: 16px 32px;
+    white-space: nowrap;
+    transition: opacity 0.25s;
+  }
+
+  .gold-bar.is-sticky .gold-bar-cta {
+    display: none;
+  }
+
+  /* Logo — hidden before sticky */
+  .gold-bar-logo {
+    display: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 19px;
+    letter-spacing: 0.08em;
+    color: var(--black);
+    text-decoration: none;
+    padding: 0 28px 0 24px;
+    border-right: 1px solid rgba(0,0,0,0.2);
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .gold-bar-logo .logo-audio { color: var(--white); }
+  .gold-bar-logo .logo-zorro { color: var(--pink); }
+
+  .gold-bar.is-sticky .gold-bar-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Nav links — hidden before sticky */
+  .gold-bar-links {
+    display: none;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .gold-bar-links::-webkit-scrollbar { display: none; }
+
+  .gold-bar.is-sticky .gold-bar-links {
+    display: flex;
+  }
+
+  .gold-bar-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.55);
+    text-decoration: none;
+    padding: 18px 20px;
+    border-right: 1px solid rgba(0,0,0,0.12);
+    white-space: nowrap;
+    transition: color 0.15s;
+  }
+
+  .gold-bar-link:hover { color: var(--black); }
+
+  .gold-bar-write {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--pink);
+    text-decoration: none;
+    padding: 0 22px;
+    margin-left: auto;
+    margin-right: 16px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+  }
+
+  .gold-bar-write:hover { opacity: 0.85; }
+
+  /* ─── LAYOUT ─── */
+  .section {
+    padding: 100px 60px;
+    border-bottom: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+    scroll-margin-top: 52px;
+  }
+
+  .section-full {
+    padding: 100px 60px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--gold-dim);
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 50px;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  /* ─── GRID ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
+
+  .grid-cell {
+    background: var(--black);
+    padding: 40px;
+  }
+
+  /* ─── INTRO ─── */
+  .intro-text {
+    font-size: clamp(18px, 2vw, 22px);
+    line-height: 1.8;
+    color: var(--text);
+    max-width: 800px;
+  }
+
+  .intro-text strong { color: var(--white); font-weight: 600; }
+  .intro-text em { font-style: italic; color: var(--gold); }
+
+  .pull-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 3.5vw, 42px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white);
+    line-height: 1.3;
+    padding: 60px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 60px 0;
+    position: relative;
+  }
+
+  .pull-quote::before {
+    content: '"';
+    font-size: 120px;
+    color: var(--gold-dim);
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    line-height: 1;
+    font-style: normal;
+  }
+
+  /* ─── CARDS ─── */
+  .card-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .card-content {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .card-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--pink);
+    line-height: 1;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  /* ─── PRICING ─── */
+  .pricing-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-top: 50px;
+  }
+
+  .pricing-main {
+    background: var(--off-black);
+    padding: 60px;
+    border: 1px solid var(--gold-dim);
+    position: relative;
+  }
+
+  .pricing-main::before {
+    content: 'POLECANY';
+    position: absolute;
+    top: -1px;
+    left: 40px;
+    background: var(--pink);
+    color: var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    padding: 4px 12px;
+  }
+
+  .pricing-secondary {
+    background: var(--black);
+    padding: 60px;
+  }
+
+  .pricing-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--white);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .pricing-tagline {
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 40px;
+  }
+
+  .pricing-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 6px;
+  }
+
+  .pricing-price-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 30px;
+  }
+
+  .pricing-includes {
+    list-style: none;
+    margin-bottom: 40px;
+  }
+
+  .pricing-includes li {
+    font-size: 15px;
+    color: var(--text);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .pricing-includes li::before {
+    content: '→';
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ─── TABLE ─── */
+  .price-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    margin-top: 30px;
+  }
+
+  .price-table th {
+    text-align: left;
+    padding: 12px 0;
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .price-table td {
+    padding: 12px 0;
+    color: var(--text);
+    border-bottom: 1px solid rgba(51,51,51,0.5);
+  }
+
+  .price-table td:last-child {
+    color: var(--gold-light);
+    text-align: right;
+  }
+
+  .price-table tr.highlight td { color: var(--white); }
+  .price-table tr.highlight td:last-child { color: var(--gold-light); }
+
+  /* ─── PROCESS ─── */
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    background: var(--border);
+    margin-top: 50px;
+  }
+
+  .process-step {
+    background: var(--black);
+    padding: 40px 30px;
+    position: relative;
+  }
+
+  .process-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold-dim);
+    font-size: 20px;
+    z-index: 1;
+    background: var(--black);
+    padding: 4px 0;
+  }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    margin-bottom: 16px;
+  }
+
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ─── TESTIMONIALS ─── */
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-top: 50px;
+  }
+
+  .testimonial {
+    background: var(--black);
+    padding: 50px 40px;
+    position: relative;
+  }
+
+  .testimonial::before {
+    content: '"';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 80px;
+    color: var(--gold-dim);
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    line-height: 1;
+  }
+
+  .testimonial-text {
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.8;
+    font-style: italic;
+    padding-top: 40px;
+    margin-bottom: 30px;
+  }
+
+  .testimonial-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .testimonial-detail {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ─── FAQ ─── */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 30px 0;
+  }
+
+  .faq-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .faq-question::after {
+    content: '+';
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .faq-answer {
+    font-size: 16px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    max-width: 760px;
+  }
+
+  /* ─── CONTACT ─── */
+  .contact-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-top: 50px;
+  }
+
+  .contact-info {
+    background: var(--off-black);
+    padding: 60px;
+  }
+
+  .contact-form {
+    background: var(--black);
+    padding: 60px;
+  }
+
+  .form-group {
+    margin-bottom: 28px;
+  }
+
+  .form-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    padding: 14px 18px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    border-color: var(--gold-dim);
+  }
+
+  .form-select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6030' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  .form-textarea {
+    height: 140px;
+    resize: vertical;
+  }
+
+  .form-submit {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 18px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+
+  .form-submit:hover { background: var(--gold-light); }
+
+  /* ─── POSITIONING BAR ─── */
+  .positioning-bar {
+    background: var(--dark);
+    padding: 40px;
+    margin: 20px 0;
+    border-left: 3px solid var(--gold);
+  }
+
+  .positioning-bar-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .positioning-bar-text {
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ─── HIGHLIGHT BOX ─── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.02));
+    border: 1px solid var(--gold-dim);
+    padding: 40px 50px;
+    margin: 40px 0;
+  }
+
+  .highlight-box-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold-dim);
+    margin: 40px 0;
+  }
+
+  /* ─── TAG ─── */
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    padding: 4px 12px;
+    margin: 4px 4px 4px 0;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    padding: 80px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--border);
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .footer-brand span { color: var(--pink); }
+
+  .footer-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 2;
+    text-align: right;
+  }
+
+  .footer-meta a {
+    color: var(--pink);
+    text-decoration: none;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .hero, .section, .section-full { padding: 60px 30px; }
+    .nav { padding: 0 30px; }
+    .grid-2, .grid-3, .grid-4, .process-steps, .pricing-container,
+    .contact-container, .testimonial-grid { grid-template-columns: 1fr; }
+    .footer { padding: 60px 30px; }
+    .footer-meta { text-align: left; }
+    .hero-mask { display: none; }
+    .process-step::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">Niezależny Agent Zakupowy · Hi-Fi &amp; Audio · Polska</div>
+  <div class="hero-title">audio<span>Zorro</span></div>
+  <div class="hero-subtitle">Kupujesz sprzęt audio za kilka, kilkanaście lub kilkadziesiąt tysięcy złotych. Zasługujesz na kogoś, kto jest po Twojej stronie.</div>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><strong>Rynek</strong>Polska / Online</div>
+    <div class="hero-meta-item"><strong>Specjalizacja</strong>Hi-Fi / High-End</div>
+    <div class="hero-meta-item"><strong>Niezależność</strong>Bez konfliktów interesów</div>
+    <div class="hero-meta-item"><strong>Dostęp</strong>Ceny dealerskie</div>
+  </div>
+  <div class="gold-bar" id="goldBar">
+    <a href="#contact" class="gold-bar-cta">Napisz do mnie</a>
+    <a href="#" class="gold-bar-logo"><span class="logo-audio">audio</span><span class="logo-zorro">Zorro</span></a>
+    <div class="gold-bar-links">
+      <a class="gold-bar-link" href="#why">Dlaczego</a>
+      <a class="gold-bar-link" href="#offer">Oferta</a>
+      <a class="gold-bar-link" href="#process">Jak to działa</a>
+      <a class="gold-bar-link" href="#testimonials">Opinie</a>
+      <a class="gold-bar-link" href="#faq">FAQ</a>
+      <a class="gold-bar-link" href="#contact">Kontakt</a>
+    </div>
+    <a href="#contact" class="gold-bar-write">Napisz →</a>
+  </div>
+  <div class="hero-mask"><span class="mask-a">A</span><span class="mask-z">Z</span></div>
+</section>
+
+<!-- WHY -->
+<section class="section reveal" id="why">
+  <div class="section-label">01 · Problem</div>
+  <h2 class="section-title">Polski rynek audio ma <em>problem</em>.</h2>
+
+  <div class="intro-text">
+    <p>Salony sprzedają to, co mają w magazynie. Recenzenci na portalach żyją z reklam marek, które opisują. "Eksperci" na forach promują sprzęt, na którym zarabiają. Kiedy szukasz rzetelnej rady przed zakupem za 10 000, 30 000 lub 80 000 zł — trafiasz na wyrafinowanego sprzedawcę, który twierdzi, że jest doradcą.</p>
+  </div>
+
+  <div class="pull-quote">
+    W branży audio niezależność to nie opcja. To produkt sam w sobie.
+  </div>
+
+  <div class="intro-text">
+    <p>audioZorro to odpowiedź na tę lukę. <strong>Niezależny agent zakupowy</strong> działający anonimowo — nie dlatego, że ma coś do ukrycia, lecz dlatego, że <em>anonimowość jest gwarancją niezależności</em>. Ekspert z wieloletnim doświadczeniem w branży, dostępem do cen dealerskich i siecią kontaktów wśród dystrybutorów — działający wyłącznie w Twoim interesie.</p>
+  </div>
+
+  <div style="margin-top: 60px;" class="grid-3">
+    <div class="grid-cell">
+      <span class="card-number">01</span>
+      <div class="card-title">Ekspertyza bez reklamy</div>
+      <div class="card-content">Wieloletnie doświadczenie jako czynny specjalista audio. Znajomość sprzętu od budżetowego po hi-end. Umiejętność tłumaczenia specyfikacji na realne brzmienie — dla Twojego gustu, w Twoim pomieszczeniu.</div>
+    </div>
+    <div class="grid-cell">
+      <span class="card-number">02</span>
+      <div class="card-title">Ceny niedostępne detalicznie</div>
+      <div class="card-content">Preferencyjny dostęp do sprzętu po cenach dealerskich dzięki wieloletnim relacjom z dystrybutorami i importerami w Polsce i za granicą. Oszczędzasz na zakupie, a prowizja agenta i tak wychodzi taniej niż cena sklepowa.</div>
+    </div>
+    <div class="grid-cell">
+      <span class="card-number">03</span>
+      <div class="card-title">Zero konfliktu interesów</div>
+      <div class="card-content">Zarabiam wyłącznie od Ciebie, nie od dystrybutorów. To oznacza, że jedynym moim zadaniem jest znalezienie najlepszego sprzętu dla Ciebie — bez względu na marżę sklepu, układ z importerem czy "gorący" stock.</div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFER -->
+<section class="section reveal" id="offer">
+  <div class="section-label">02 · Oferta</div>
+  <h2 class="section-title">Dwa pakiety. <em>Żadnych niespodzianek.</em></h2>
+
+  <div class="pricing-container">
+    <!-- MAIN -->
+    <div class="pricing-main">
+      <div class="pricing-name">Pakiet Agent</div>
+      <div class="pricing-tagline">Pełen serwis zakupowy — od pierwszej rozmowy do odbioru sprzętu</div>
+
+      <div class="pricing-price">PROWIZJA OD WARTOŚCI ZAKUPU</div>
+      <div class="pricing-price-big">3%</div>
+
+      <ul class="pricing-includes">
+        <li>Szczegółowa analiza Twoich potrzeb i stylu słuchania</li>
+        <li>Dobór optymalnego zestawu lub komponentu w danym budżecie</li>
+        <li>Negocjacje cenowe z dystrybutorami i importerami w Polsce i za granicą</li>
+        <li>Zakup w Twoim imieniu po preferencyjnej cenie dealerskiej</li>
+        <li>Pełna dokumentacja transakcji i gwarancja producenta</li>
+      </ul>
+
+      <div class="tag">Min. budżet: 5 000 zł</div>
+      <div class="tag">Min. prowizja: 300 zł</div>
+
+      <table class="price-table" style="margin-top: 30px;">
+        <thead>
+          <tr>
+            <th>Twój budżet</th>
+            <th style="text-align:right">Moje wynagrodzenie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>5 000 – 10 000 zł</td><td>300 zł</td></tr>
+          <tr><td>15 000 zł</td><td>450 zł</td></tr>
+          <tr class="highlight"><td>30 000 zł</td><td>900 zł</td></tr>
+          <tr class="highlight"><td>50 000 zł</td><td>1 500 zł</td></tr>
+          <tr class="highlight"><td>100 000 zł</td><td>3 000 zł</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SECONDARY -->
+    <div class="pricing-secondary">
+      <div class="pricing-name">Pakiet Doradztwo</div>
+      <div class="pricing-tagline">Wiedza bez zakupu — jeśli chcesz decydować sam</div>
+
+      <div class="pricing-price">OPŁATA JEDNORAZOWA</div>
+      <div class="pricing-price-big">300 zł</div>
+
+      <ul class="pricing-includes">
+        <li>Konsultacja Twojego obecnego zestawu lub planowanego zakupu</li>
+        <li>Rekomendacja konkretnych produktów z uzasadnieniem</li>
+        <li>Odpowiedzi na pytania bez limitu w ramach sesji</li>
+        <li>Możliwość upgrade'u do Pakietu Agent z zaliczeniem opłaty</li>
+      </ul>
+
+      <div class="highlight-box" style="margin-top: 30px; padding: 24px;">
+        <div class="highlight-box-title">Dobry punkt wejścia</div>
+        <div style="font-size: 14px; color: var(--text-dim); line-height: 1.7;">Nie jesteś pewien, czy potrzebujesz agenta? Zacznij od konsultacji. Zobaczymy, jak pracuję — bez zobowiązań. Opłata za doradztwo zostaje zaliczona na poczet Pakietu Agent, jeśli zdecydujesz się iść dalej.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top: 30px;">
+    <div class="highlight-box-title">Dlaczego 3% a nie stała cena?</div>
+    <div class="intro-text" style="font-size: 16px;">
+      <p>Prowizja procentowa oznacza, że mój interes jest zbieżny z Twoim: im lepszy sprzęt znajdę w Twoim budżecie, tym wyższe moje wynagrodzenie. Nie mam powodu przepłacać ani brać prowizji od dystrybutora. <strong>Zarabiam na Twojej satysfakcji — nie na marżach sklepów.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section reveal" id="process">
+  <div class="section-label">03 · Jak to działa</div>
+  <h2 class="section-title">Cztery kroki. <em>Zero stresu.</em></h2>
+
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-num">KROK 01</div>
+      <div class="step-title">Pierwszy kontakt</div>
+      <div class="step-desc">Piszesz przez formularz lub e-mail. Opisujesz budżet i to, czego szukasz. W ciągu 24h odpowiadam z pytaniami lub propozycją rozmowy. Żadnych zobowiązań — pierwsze pytania są bezpłatne.</div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">KROK 02</div>
+      <div class="step-title">Analiza potrzeb</div>
+      <div class="step-desc">Szczegółowy wywiad: styl słuchania, gatunki muzyczne, istniejący sprzęt, warunki lokalowe, priorytety brzmieniowe. Twój profil jako punkt wyjścia do rekomendacji skrojonych na miarę.</div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">KROK 03</div>
+      <div class="step-title">Rekomendacja i negocjacje</div>
+      <div class="step-desc">Przygotowuję rekomendację z pełnym uzasadnieniem. Po Twojej akceptacji negocjuję z dystrybutorami — uzyskując ceny niedostępne w sprzedaży detalicznej. Wiesz ile płacisz zanim zaczniesz.</div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">KROK 04</div>
+      <div class="step-title">Zakup i rozliczenie</div>
+      <div class="step-desc">Kupuję w Twoim imieniu z pełną dokumentacją i gwarancją producenta. Moje wynagrodzenie płatne dopiero po finalizacji — jeśli nie znajdę nic odpowiedniego, nic nie płacisz.</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top: 50px;">
+    <div class="highlight-box-title">Anonimowość agenta = Twoja gwarancja niezależności</div>
+    <div class="intro-text" style="font-size: 16px;">
+      <p>audioZorro działa pod pseudonimem — i jest to celowe. Anonimowość agenta oznacza, że żaden dystrybutor nie może wywierać presji personalnej, a sieć relacji branżowych pozostaje nieskażona konfliktem interesów. Ty wiesz, kto pracuje w Twoim imieniu. Branża — nie.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section reveal" id="testimonials">
+  <div class="section-label">04 · Opinie klientów</div>
+  <h2 class="section-title">Co mówią <em>klienci</em>.</h2>
+
+  <div class="intro-text">
+    <p>audioZorro jest w fazie pilotażowej — pierwsze opinie pochodzą od klientów, którzy zdecydowali się skorzystać z usługi w ramach zamkniętej listy testowej. Tożsamości chronione na życzenie.</p>
+  </div>
+
+  <div class="testimonial-grid">
+    <div class="testimonial">
+      <div class="testimonial-text">Przez rok szukałem dobrego wzmacniacza do 20 000 zł. Salony proponowały to, co miały na stanie. audioZorro w tydzień znalazł mi sprzęt, o którym bym sam nie pomyślał — i taniej niż w jakimkolwiek polskim sklepie.</div>
+      <div class="testimonial-author">Klient A.</div>
+      <div class="testimonial-detail">Budżet 18 000 zł · Pakiet Agent</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-text">Zaczęłem od konsultacji, bo byłem sceptyczny. Po rozmowie było jasne, że ta osoba wie więcej o moim zestawie niż połowa forumowych ekspertów razem wzięta. Tydzień później kupiłem przez agenta.</div>
+      <div class="testimonial-author">Klient B.</div>
+      <div class="testimonial-detail">Budżet 35 000 zł · Pakiet Doradztwo → Agent</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-text">Cena dealerska na DAC z zagranicznej dystrybucji — czego sam bym nie załatwił. Prowizja agenta zwróciła się z nawiązką w stosunku do ceny detalicznej. Polecam każdemu, kto traktuje audio poważnie.</div>
+      <div class="testimonial-author">Klient C.</div>
+      <div class="testimonial-detail">Budżet 12 000 zł · Pakiet Agent</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section reveal" id="faq">
+  <div class="section-label">05 · Często zadawane pytania</div>
+  <h2 class="section-title">Masz pytania. <em>Mam odpowiedzi.</em></h2>
+
+  <div style="margin-top: 50px;">
+
+    <div class="faq-item">
+      <div class="faq-question">Czy naprawdę nie wiem, kim jest agent?</div>
+      <div class="faq-answer">Tak. audioZorro działa pod pseudonimem — to świadomy wybór, który chroni niezależność usługi. Wiesz, jak pracuję, co robię w Twoim imieniu i ile kosztuje. Nie wiesz, jak mam na imię — i to jest celowe. Wielu klientów uważa to za zaletę: agent nie może być "przycisnięty" przez dystrybutorów, z którymi zna się osobiście.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Czy mam gwarancję, że sprzęt będzie oryginalny?</div>
+      <div class="faq-answer">Tak. Kupuję wyłącznie od autoryzowanych dystrybutorów i importerów z polskim lub europejskim rynkiem. Każda transakcja jest udokumentowana — faktura, gwarancja producenta, pełna dokumentacja techniczna. Przy większych zakupach proponuję umowę pisemną.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Co jeśli nie znajdziesz nic odpowiedniego?</div>
+      <div class="faq-answer">Nic nie płacisz. Moje wynagrodzenie jest prowizją od zakupu — jeśli nie dojdzie do transakcji, bo żadna opcja Cię nie przekona lub budżet okaże się niewystarczający, koszt po Twojej stronie wynosi zero. Jedyny wyjątek: Pakiet Doradztwo, który jest płatny z góry i nie jest powiązany z zakupem.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Jak wygląda zakup sprzętu zagranicznego?</div>
+      <div class="faq-answer">Mam kontakty z dystrybutorami w Polsce, Niemczech, Czechach, Austrii i UK. Sprzęt sprowadzany z zagranicy objęty jest europejską gwarancją producenta. Wszystkie formalności celne i logistyczne leżą po mojej stronie — Ty odbierasz gotowy, legalnie sprowadzony sprzęt.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Czy mogę liczyć na pomoc przy odsprzedaży obecnego sprzętu?</div>
+      <div class="faq-answer">Nie jest to część standardowej oferty, ale w ramach Pakietu Agent chętnie doradzę, gdzie i za ile sprzedać obecny zestaw przed zakupem nowego. To naturalna część planowania zakupu z ograniczonym budżetem.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Jaki jest minimalny budżet do Pakietu Agent?</div>
+      <div class="faq-answer">5 000 zł — to minimalna kwota, przy której dostęp dealerski i negocjacje cenowe mają ekonomiczny sens dla obu stron. Jeśli Twój budżet jest niższy, Pakiet Doradztwo (300 zł) da Ci ekspercką rekomendację bez prowizji zakupowej.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section reveal" id="contact">
+  <div class="section-label">06 · Kontakt</div>
+  <h2 class="section-title">Napisz. <em>Zobaczmy, co możemy zrobić.</em></h2>
+
+  <div class="contact-container">
+    <div class="contact-info">
+      <div class="card-title">Zanim napiszesz</div>
+      <div class="card-content" style="font-size: 17px; line-height: 1.9; margin-bottom: 40px;">
+        Nie potrzebujesz dokładnej specyfikacji ani gotowej listy zakupów. Wystarczy, że powiesz mi, ile chcesz wydać i czego oczekujesz od dźwięku. Resztą zajmę się sam.
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-title" style="margin-bottom: 20px;">Odpowiadam w ciągu</div>
+      <div style="font-family: 'Bebas Neue'; font-size: 56px; color: var(--white); line-height: 1; margin-bottom: 6px;">24h</div>
+      <div style="font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;">W dni robocze</div>
+
+      <div class="divider"></div>
+
+      <div class="positioning-bar" style="margin: 0;">
+        <div class="positioning-bar-title">Pierwsze pytania są bezpłatne</div>
+        <div class="positioning-bar-text" style="font-size: 15px;">Zanim zdecydujesz się na pakiet, możesz zadać kilka pytań wstępnych — bez zobowiązań i bez opłat. Chcę, żebyś wiedział, z kim rozmawiasz, zanim powierzysz mi swój budżet.</div>
+      </div>
+    </div>
+
+    <div class="contact-form">
+      <div class="form-group">
+        <label class="form-label">Imię (lub pseudonim)</label>
+        <input type="text" class="form-input" placeholder="Jak mam się do Ciebie zwracać?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adres e-mail</label>
+        <input type="email" class="form-input" placeholder="Twój adres e-mail">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Interesuje mnie</label>
+        <select class="form-select">
+          <option value="">— wybierz pakiet —</option>
+          <option value="agent">Pakiet Agent (zakup przez agenta, 3%)</option>
+          <option value="doradztwo">Pakiet Doradztwo (konsultacja, 300 zł)</option>
+          <option value="pytanie">Mam pytanie wstępne</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budżet (orientacyjnie)</label>
+        <select class="form-select">
+          <option value="">— wybierz przedział —</option>
+          <option>5 000 – 10 000 zł</option>
+          <option>10 000 – 20 000 zł</option>
+          <option>20 000 – 50 000 zł</option>
+          <option>Powyżej 50 000 zł</option>
+          <option>Nie wiem jeszcze</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Czego szukasz / co Cię interesuje</label>
+        <textarea class="form-textarea" placeholder="Powiedz mi, co słuchasz, czego Ci brakuje w obecnym zestawie lub czym jesteś zainteresowany. Im więcej napiszesz, tym lepsza będzie pierwsza odpowiedź."></textarea>
+      </div>
+      <button class="form-submit" onclick="handleSubmit(event)">Wyślij wiadomość →</button>
+      <div id="form-confirm" style="display:none; margin-top: 20px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.2em;">✓ Wiadomość wysłana — odezwę się w ciągu 24h.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">audio<span>Zorro</span></div>
+  <div class="footer-meta">
+    Niezależny agent zakupowy · Hi-Fi &amp; High-End Audio<br>
+    Polska / Online · 2026<br>
+    <a href="#contact">Napisz do mnie</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Gold bar sticky
+  const goldBar = document.getElementById('goldBar');
+  let barOffsetTop = 0;
+
+  function getBarOffset() {
+    // Temporarily un-stick to measure natural position
+    goldBar.classList.remove('is-sticky');
+    barOffsetTop = goldBar.getBoundingClientRect().top + window.scrollY;
+    if (window.scrollY > barOffsetTop) goldBar.classList.add('is-sticky');
+  }
+
+  window.addEventListener('load', getBarOffset);
+  window.addEventListener('resize', getBarOffset);
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY >= barOffsetTop) {
+      goldBar.classList.add('is-sticky');
+    } else {
+      goldBar.classList.remove('is-sticky');
+    }
+  }, { passive: true });
+
+  // Form submit (demo)
+  function handleSubmit(e) {
+    e.preventDefault();
+    document.getElementById('form-confirm').style.display = 'block';
+  }
+</script>
+
+<!-- PINK COLOR PICKER -->
+<div id="colorPicker" style="
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  font-family: 'DM Mono', monospace;
+">
+  <!-- Toggle button -->
+  <button id="colorToggle" onclick="togglePicker()" style="
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--pink);
+    border: 2px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+  " title="Zmień kolor akcentu"></button>
+
+  <!-- Panel -->
+  <div id="colorPanel" style="
+    display: none;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    padding: 16px;
+    margin-bottom: 10px;
+    width: 200px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  ">
+    <div style="font-size: 9px; letter-spacing: 0.25em; color: #7a7060; text-transform: uppercase; margin-bottom: 12px;">Kolor akcentu</div>
+
+    <!-- Preset swatches -->
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;" id="swatches"></div>
+
+    <!-- Custom hex input -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <input id="hexInput" type="text" maxlength="7" placeholder="#f542e3" style="
+        flex: 1;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        color: #ddd8cc;
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        padding: 8px 10px;
+        letter-spacing: 0.1em;
+        outline: none;
+        width: 100%;
+      ">
+      <button onclick="applyHex()" style="
+        background: var(--pink);
+        border: none;
+        color: #0a0a0a;
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        padding: 8px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+      ">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const presets = [
+    { label: 'Różowy (domyślny)', hex: '#f542e3' },
+    { label: 'Burgundowy', hex: '#541127' },
+    { label: 'Turkus', hex: '#00A391' },
+    { label: 'Oliwkowy', hex: '#717336' },
+    { label: 'Pomarańcz', hex: '#eb6434' },
+    { label: 'Niebieski', hex: '#4d7fc9' },
+  ];
+
+  // Build swatches
+  const swatchContainer = document.getElementById('swatches');
+  presets.forEach(p => {
+    const s = document.createElement('button');
+    s.title = p.label;
+    s.style.cssText = `
+      width: 24px; height: 24px; border-radius: 50%;
+      background: ${p.hex}; border: 2px solid rgba(255,255,255,0.1);
+      cursor: pointer; transition: transform 0.15s; flex-shrink: 0;
+    `;
+    s.onmouseover = () => s.style.transform = 'scale(1.2)';
+    s.onmouseleave = () => s.style.transform = 'scale(1)';
+    s.onclick = () => applyColor(p.hex);
+    swatchContainer.appendChild(s);
+  });
+
+  function togglePicker() {
+    const panel = document.getElementById('colorPanel');
+    const btn = document.getElementById('colorToggle');
+    const visible = panel.style.display === 'block';
+    panel.style.display = visible ? 'none' : 'block';
+    btn.style.transform = visible ? 'scale(1)' : 'scale(1.15)';
+  }
+
+  function applyColor(hex) {
+    document.documentElement.style.setProperty('--pink', hex);
+    document.getElementById('colorToggle').style.background = hex;
+    document.getElementById('hexInput').value = hex;
+  }
+
+  function applyHex() {
+    let val = document.getElementById('hexInput').value.trim();
+    if (!val.startsWith('#')) val = '#' + val;
+    if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(val)) {
+      applyColor(val);
+    }
+  }
+
+  document.getElementById('hexInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyHex();
+  });
+</script>
+</body>
+</html>
