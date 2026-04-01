@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANAL — KLIC / Kulicke & Soffa — 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0A0A0C;
+  --bg2:       #0F0F12;
+  --bg3:       #141418;
+  --bg4:       #1A1A20;
+  --border:    #1E1E26;
+  --border2:   #252530;
+  --green:     #00FF88;
+  --green2:    #00CC6A;
+  --red:       #FF3355;
+  --amber:     #FFB800;
+  --blue:      #00AAFF;
+  --purple:    #9945FF;
+  --cyan:      #00E5FF;
+  --text:      #E8E8F0;
+  --text2:     #9090A8;
+  --text3:     #5A5A70;
+  --mono:      'JetBrains Mono', monospace;
+  --sans:      'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 10px; scroll-behavior: smooth; }
+@media (min-width: 1024px) { html { zoom: 1.43; } }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* HEADER */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border2);
+  padding: 20px 28px 16px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+}
+.header-left { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.ticker-big {
+  font-family: var(--sans); font-size: 2.4rem; font-weight: 800;
+  color: var(--cyan); letter-spacing: 0.05em;
+  text-shadow: 0 0 20px rgba(0,229,255,0.4);
+}
+.ticker-name { font-size: 1.1rem; color: var(--text2); letter-spacing: 0.08em; }
+.header-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.price-big { font-family: var(--sans); font-size: 2rem; font-weight: 700; color: var(--text); }
+.price-change { font-size: 1.1rem; color: var(--green); font-weight: 500; }
+.price-change.dn { color: var(--red); }
+
+.tag {
+  font-size: 0.95rem; padding: 3px 10px; border-radius: 2px;
+  font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.tag-green  { background: rgba(0,255,136,0.12); color: var(--green);  border: 1px solid rgba(0,255,136,0.25); }
+.tag-red    { background: rgba(255,51,85,0.12);  color: var(--red);    border: 1px solid rgba(255,51,85,0.25); }
+.tag-amber  { background: rgba(255,184,0,0.12);  color: var(--amber);  border: 1px solid rgba(255,184,0,0.25); }
+.tag-blue   { background: rgba(0,170,255,0.12);  color: var(--blue);   border: 1px solid rgba(0,170,255,0.25); }
+.tag-cyan   { background: rgba(0,229,255,0.10);  color: var(--cyan);   border: 1px solid rgba(0,229,255,0.25); }
+.tag-purple { background: rgba(153,69,255,0.12); color: var(--purple); border: 1px solid rgba(153,69,255,0.25); }
+
+/* NAV */
+.nav-strip {
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+  padding: 0 28px; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
+}
+.nav-strip::-webkit-scrollbar { display: none; }
+.nav-item {
+  font-size: 0.9rem; color: var(--text3); padding: 10px 14px;
+  cursor: pointer; white-space: nowrap; text-decoration: none;
+  letter-spacing: 0.05em; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.nav-item:hover { color: var(--text); border-bottom-color: var(--cyan); }
+
+/* LAYOUT */
+.container {
+  max-width: 1100px; margin: 0 auto;
+  padding: 28px 28px 60px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+
+/* SECTION */
+.section { background: var(--bg2); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+.section-head {
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+  padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+}
+.section-num { font-size: 0.8rem; color: var(--text3); letter-spacing: 0.12em; }
+.section-title {
+  font-family: var(--sans); font-size: 1.1rem; font-weight: 700;
+  color: var(--text); letter-spacing: 0.06em; text-transform: uppercase; flex: 1;
+}
+.section-body { padding: 20px; }
+
+/* GRIDS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+@media (max-width:700px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr 1fr; } }
+
+/* KPI */
+.kpi { background: var(--bg3); border: 1px solid var(--border2); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.kpi-label { font-size: 0.8rem; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+.kpi-value { font-family: var(--sans); font-size: 1.7rem; font-weight: 700; color: var(--text); line-height: 1; }
+.kpi-value.green  { color: var(--green); }
+.kpi-value.red    { color: var(--red); }
+.kpi-value.amber  { color: var(--amber); }
+.kpi-value.blue   { color: var(--blue); }
+.kpi-value.cyan   { color: var(--cyan); }
+.kpi-sub { font-size: 0.85rem; color: var(--text2); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 1.05rem; }
+th {
+  background: var(--bg4); color: var(--text3); font-size: 0.8rem;
+  letter-spacing: 0.1em; text-transform: uppercase; text-align: left;
+  padding: 8px 12px; border-bottom: 1px solid var(--border2); font-weight: 400;
+}
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+.td-right { text-align: right; }
+.td-green { color: var(--green); font-weight: 500; }
+.td-red   { color: var(--red);   font-weight: 500; }
+.td-amber { color: var(--amber); font-weight: 500; }
+.td-cyan  { color: var(--cyan);  font-weight: 500; }
+.td-dim   { color: var(--text2); }
+
+/* BARS */
+.bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.bar-label { font-size: 0.9rem; color: var(--text2); width: 140px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 5px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; background: var(--cyan); }
+.bar-fill.green  { background: var(--green); }
+.bar-fill.red    { background: var(--red); }
+.bar-fill.amber  { background: var(--amber); }
+.bar-fill.purple { background: var(--purple); }
+.bar-val { font-size: 0.9rem; color: var(--text); width: 70px; text-align: right; flex-shrink: 0; }
+
+/* PROSE */
+.prose { font-size: 1.1rem; color: var(--text2); line-height: 1.75; }
+.prose p { margin-bottom: 12px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { color: var(--text); font-weight: 500; }
+.prose .hl-green  { color: var(--green);  font-weight: 500; }
+.prose .hl-red    { color: var(--red);    font-weight: 500; }
+.prose .hl-amber  { color: var(--amber);  font-weight: 500; }
+.prose .hl-cyan   { color: var(--cyan);   font-weight: 500; }
+
+/* SEGMENT */
+.seg-grid { display: flex; flex-direction: column; gap: 8px; }
+.seg-row { display: flex; align-items: center; gap: 12px; }
+.seg-name { font-size: 0.9rem; color: var(--text2); width: 200px; flex-shrink: 0; }
+.seg-bar { flex: 1; height: 20px; background: var(--bg4); border-radius: 1px; overflow: hidden; position: relative; }
+.seg-fill { height: 100%; display: flex; align-items: center; padding-left: 8px; font-size: 0.8rem; font-weight: 500; }
+
+/* SIGNAL */
+.signal-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.signal-row:last-child { border-bottom: none; }
+.signal-name { font-size: 0.95rem; color: var(--text2); }
+.signal-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-green  { background: var(--green);  box-shadow: 0 0 6px rgba(0,255,136,0.6); }
+.dot-red    { background: var(--red);    box-shadow: 0 0 6px rgba(255,51,85,0.6); }
+.dot-amber  { background: var(--amber);  box-shadow: 0 0 6px rgba(255,184,0,0.6); }
+.dot-cyan   { background: var(--cyan);   box-shadow: 0 0 6px rgba(0,229,255,0.6); }
+.dot-grey   { background: var(--text3); }
+.signal-val { font-size: 0.95rem; color: var(--text); font-weight: 500; min-width: 90px; text-align: right; }
+
+/* TIER */
+.tier { border: 1px solid var(--border2); margin-bottom: 10px; overflow: hidden; }
+.tier-head { padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.tier-head.t1 { background: rgba(0,229,255,0.07); }
+.tier-head.t2 { background: rgba(255,184,0,0.07); }
+.tier-head.t3 { background: rgba(0,170,255,0.07); }
+.tier-name { font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+.t1 .tier-name { color: var(--cyan); }
+.t2 .tier-name { color: var(--amber); }
+.t3 .tier-name { color: var(--blue); }
+.tier-body { padding: 10px 14px; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.tier-item-label { font-size: 0.78rem; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+.tier-item-val { font-size: 1.05rem; color: var(--text); font-weight: 500; }
+
+/* RISK */
+.risk-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.risk-item:last-child { border-bottom: none; }
+.risk-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 1px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; margin-top: 2px; width: 58px; text-align: center; }
+.risk-HIGH { background: rgba(255,51,85,0.2);   color: var(--red);   border: 1px solid rgba(255,51,85,0.3); }
+.risk-MED  { background: rgba(255,184,0,0.15);  color: var(--amber); border: 1px solid rgba(255,184,0,0.3); }
+.risk-LOW  { background: rgba(0,255,136,0.1);   color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+.risk-title { font-size: 1rem; color: var(--text); font-weight: 500; margin-bottom: 3px; }
+.risk-desc  { font-size: 0.95rem; color: var(--text2); line-height: 1.55; }
+
+/* SCENARIO */
+.scenario-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.scenario-card { padding: 14px; border: 1px solid var(--border2); }
+.sc-bull { border-top: 2px solid var(--green); }
+.sc-base { border-top: 2px solid var(--amber); }
+.sc-bear { border-top: 2px solid var(--red); }
+.sc-head { font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+.sc-bull .sc-head { color: var(--green); }
+.sc-base .sc-head { color: var(--amber); }
+.sc-bear .sc-head { color: var(--red); }
+.sc-price { font-family: var(--sans); font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
+.sc-bull .sc-price { color: var(--green); }
+.sc-base .sc-price { color: var(--amber); }
+.sc-bear .sc-price { color: var(--red); }
+.sc-prob { font-size: 0.85rem; color: var(--text3); margin-bottom: 10px; }
+.sc-text { font-size: 0.9rem; color: var(--text2); line-height: 1.55; }
+
+/* VERDICT */
+.verdict-box { border: 1px solid rgba(0,229,255,0.3); background: rgba(0,229,255,0.03); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.verdict-rating { display: flex; align-items: center; gap: 16px; }
+.verdict-stars { font-size: 1.8rem; letter-spacing: 0.05em; color: var(--amber); }
+.verdict-label { font-family: var(--sans); font-size: 1.8rem; font-weight: 800; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.05em; }
+.verdict-text { font-size: 1.05rem; color: var(--text2); line-height: 1.7; }
+.verdict-text strong { color: var(--text); }
+
+/* LEVELS CHART */
+.level-chart { position: relative; background: var(--bg3); border: 1px solid var(--border2); padding: 20px 16px; height: 200px; margin: 12px 0; }
+.level-line { position: absolute; left: 70px; right: 16px; height: 1px; display: flex; align-items: center; }
+.level-line.dashed { border-top: 1px dashed; }
+.level-line.solid  { border-top: 1.5px solid; }
+.level-line-green  { border-color: var(--green); }
+.level-line-red    { border-color: var(--red); }
+.level-line-amber  { border-color: var(--amber); }
+.level-line-cyan   { border-color: var(--cyan); }
+.level-label { position: absolute; left: 0; font-size: 0.8rem; transform: translateY(-50%); white-space: nowrap; }
+.level-price { position: absolute; right: 0; font-size: 0.8rem; transform: translateY(-50%); padding-right: 4px; }
+
+/* CONSENSUS */
+.consensus-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.c-label { font-size: 0.85rem; color: var(--text2); width: 70px; flex-shrink: 0; }
+.c-count { font-size: 0.85rem; color: var(--text3); width: 24px; text-align: center; }
+
+/* WARNING BANNER */
+.warning-banner {
+  background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.3);
+  padding: 10px 14px; font-size: 0.95rem; color: var(--amber);
+  display: flex; gap: 10px; align-items: flex-start; margin-bottom: 16px;
+}
+.warning-icon { flex-shrink: 0; font-size: 1.2rem; margin-top: 1px; }
+
+.sep { height: 1px; background: var(--border); margin: 16px 0; }
+.inline-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* FOOTER */
+.footer { text-align: center; padding: 20px; font-size: 0.8rem; color: var(--text3); border-top: 1px solid var(--border); line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <span class="ticker-big">KLIC</span>
+    <span class="ticker-name">KULICKE & SOFFA INDUSTRIES · NASDAQ · Semiconductor Assembly Equipment</span>
+  </div>
+  <div class="header-right">
+    <span class="price-big">~$67</span>
+    <span class="price-change">▲ +60% od lut. dołka</span>
+    <span class="tag tag-amber">UMIARKOWANY BUY</span>
+    <span class="tag tag-cyan">TCB Inflection</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-strip">
+  <a class="nav-item" href="#s01">01 MODEL</a>
+  <a class="nav-item" href="#s02">02 FINANSE</a>
+  <a class="nav-item" href="#s03">03 ANALITYCY</a>
+  <a class="nav-item" href="#s04">04 MOMENTUM</a>
+  <a class="nav-item" href="#s05">05 TECHNICZNE</a>
+  <a class="nav-item" href="#s06">06 WEJŚCIE</a>
+  <a class="nav-item" href="#s07">07 SCENARIUSZE</a>
+  <a class="nav-item" href="#s08">08 RYZYKA</a>
+  <a class="nav-item" href="#s09">09 WERDYKT</a>
+</div>
+
+<div class="container">
+
+<!-- ══ 01 MODEL ══ -->
+<div class="section" id="s01">
+  <div class="section-head">
+    <span class="section-num">// 01</span>
+    <span class="section-title">Model Biznesowy</span>
+    <span class="tag tag-cyan">Wire Bonding #1</span>
+    <span class="tag tag-purple">Advanced Packaging</span>
+  </div>
+  <div class="section-body">
+    <div class="prose" style="margin-bottom:18px;">
+      <p>Kulicke & Soffa (K&S) to <strong>globalny lider w zakresie sprzętu do montażu układów scalonych</strong> — firma założona w 1951 roku w Filadelfii, od lat 90. z siedzibą w Singapurze. Produkuje maszyny do wire bondingu (ball bonding, wedge bonding) i zaawansowanego pakowania chipów (thermocompression bonding, fluxless TCB, hybrid bonding). To <span class="hl-cyan">pure-play semicap play</span> na etapie end-of-line assembly — ostatni krok przed zapakowaniem chipu.</p>
+      <p>Kluczowa teza inwestycyjna: K&S przechodzi transformację z <strong>dojrzałego dostawcy wire bonding</strong> (commodity, cykliczny) w <strong>dostawcę zaawansowanego pakowania AI</strong> (TCB/fluxless TCB dla HBM, EMIB, CoWoS-Next). Przesunięcie to wiązane jest z eksplozją popytu na HBM (High Bandwidth Memory) dla AI acceleratorów — H100, GB200 i kolejnych generacji Nvidii wymagają TCB do łączenia stosów HBM.</p>
+      <p>Model operacyjny: sprzęt (~70% rev) + aftermarket/consumables/serwis (~30% rev). Serwis to recurring revenue z wyższą marżą — bufor w cyklicznym downturn. Manufacturing w Singapurze — klucz dla taryf (brak bezpośredniej ekspozycji US-China na poziomie produkcji).</p>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Segmenty przychodów (TTM ~$650M)</div>
+      <div class="seg-grid">
+        <div class="seg-row">
+          <span class="seg-name">Ball Bonding Equipment</span>
+          <div class="seg-bar"><div class="seg-fill" style="width:52%;background:rgba(0,229,255,0.25);color:var(--cyan);">~52% — General Semi / Memory</div></div>
+        </div>
+        <div class="seg-row">
+          <span class="seg-name">Advanced Solutions (TCB)</span>
+          <div class="seg-bar"><div class="seg-fill" style="width:15%;background:rgba(0,255,136,0.25);color:var(--green);">~15% → rosnący</div></div>
+        </div>
+        <div class="seg-row">
+          <span class="seg-name">Aftermarket & Services</span>
+          <div class="seg-bar"><div class="seg-fill" style="width:20%;background:rgba(153,69,255,0.2);color:var(--purple);">~20% — recurring</div></div>
+        </div>
+        <div class="seg-row">
+          <span class="seg-name">Wedge Bonding</span>
+          <div class="seg-bar"><div class="seg-fill" style="width:13%;background:rgba(255,184,0,0.2);color:var(--amber);">~13% — Automotive/Power</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-4">
+      <div class="kpi">
+        <span class="kpi-label">Market Cap</span>
+        <span class="kpi-value cyan">~$3.5B</span>
+        <span class="kpi-sub">Small-cap semicap</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Headquartery</span>
+        <span class="kpi-value">Singapore</span>
+        <span class="kpi-sub">Mfg. w Singapurze → taryfy OK</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Zatrudnienie</span>
+        <span class="kpi-value">~3 400</span>
+        <span class="kpi-sub">Lean org, asset-light</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Główni klienci</span>
+        <span class="kpi-value">Amkor</span>
+        <span class="kpi-sub">OSAT, IDMs, Micron, SK Hynix</span>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="warning-banner">
+      <span class="warning-icon">⚠</span>
+      <span><strong>Leadership gap:</strong> CEO dr Fusen Chen przeszedł na emeryturę z powodów zdrowotnych w październiku 2025. Interim CEO/CFO: Lester Wong. Board poszukuje stałego następcy — to kluczowe ryzyko egzekucyjne przy najbardziej krytycznym momencie technology transition.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 02 FINANSE ══ -->
+<div class="section" id="s02">
+  <div class="section-head">
+    <span class="section-num">// 02</span>
+    <span class="section-title">Finanse</span>
+    <span class="tag tag-cyan">Recovery Mode</span>
+    <span class="tag tag-amber">Ujemne FCF Q1'26</span>
+  </div>
+  <div class="section-body">
+
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="kpi">
+        <span class="kpi-label">Rev Q1 FY2026</span>
+        <span class="kpi-value cyan">$199.6M</span>
+        <span class="kpi-sub">+20% YoY, +5% vs est. ($190M)</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Non-GAAP EPS Q1</span>
+        <span class="kpi-value green">$0.44</span>
+        <span class="kpi-sub">+33% vs est. $0.33 — silny beat</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Gross Margin Q1</span>
+        <span class="kpi-value">49.6%</span>
+        <span class="kpi-sub">Cel FY2026: ~49-50%</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">FCF Q1 FY2026</span>
+        <span class="kpi-value red">-$11.6M</span>
+        <span class="kpi-sub">Negatywny — inventory build</span>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="kpi">
+        <span class="kpi-label">Rev Guidance Q2 FY26</span>
+        <span class="kpi-value cyan">$230M</span>
+        <span class="kpi-sub">±$10M, +15% QoQ</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Non-GAAP EPS Q2 guid.</span>
+        <span class="kpi-value amber">$0.67</span>
+        <span class="kpi-sub">±10%; vs orig. est. $0.30!</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">H2 FY2026 mgmt. outlook</span>
+        <span class="kpi-value green">+15–20%</span>
+        <span class="kpi-sub">vs H1 FY2026 — optymizm</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">TCB growth FY2026</span>
+        <span class="kpi-value green">~+70%</span>
+        <span class="kpi-sub">Sekwencyjnie YoY</span>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-bottom:16px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Okres (FY=X)</th>
+            <th class="td-right">Revenue</th>
+            <th class="td-right">YoY%</th>
+            <th class="td-right">GM%</th>
+            <th class="td-right">Non-GAAP EPS</th>
+            <th class="td-right">Uwagi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FY2022</td>
+            <td class="td-right">$1.73B</td>
+            <td class="td-right td-green">+50%</td>
+            <td class="td-right">52%</td>
+            <td class="td-right">$6.82</td>
+            <td class="td-right td-dim">Boom-cycle peak</td>
+          </tr>
+          <tr>
+            <td>FY2023</td>
+            <td class="td-right td-dim">$0.73B</td>
+            <td class="td-right td-red">-58%</td>
+            <td class="td-right td-red">44%</td>
+            <td class="td-right td-red">$0.16</td>
+            <td class="td-right td-dim">Trough — downcycle</td>
+          </tr>
+          <tr>
+            <td>FY2024</td>
+            <td class="td-right td-dim">$0.70B</td>
+            <td class="td-right td-red">-4%</td>
+            <td class="td-right">46%</td>
+            <td class="td-right td-dim">~$0.80</td>
+            <td class="td-right td-dim">Stabilizacja</td>
+          </tr>
+          <tr>
+            <td>FY2025 (Oct)</td>
+            <td class="td-right td-dim">~$0.75B</td>
+            <td class="td-right td-amber">+7%</td>
+            <td class="td-right td-amber">47%</td>
+            <td class="td-right td-amber">~$1.00</td>
+            <td class="td-right td-dim">Wczesne ożywienie</td>
+          </tr>
+          <tr style="background:rgba(0,229,255,0.04);">
+            <td><strong>Q1 FY2026 ✦</strong></td>
+            <td class="td-right td-cyan"><strong>$199.6M</strong></td>
+            <td class="td-right td-green"><strong>+20%</strong></td>
+            <td class="td-right td-green"><strong>49.6%</strong></td>
+            <td class="td-right td-green"><strong>$0.44</strong></td>
+            <td class="td-right td-dim">Beat — recovery on</td>
+          </tr>
+          <tr>
+            <td>Q2 FY2026 (Guid.)</td>
+            <td class="td-right td-cyan">~$230M</td>
+            <td class="td-right td-amber">est.</td>
+            <td class="td-right td-amber">~49%</td>
+            <td class="td-right td-cyan">~$0.67</td>
+            <td class="td-right td-dim">Earnings: 05.05.2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Marże i struktura kosztów</div>
+    <div class="bar-row">
+      <span class="bar-label">Gross Margin Q1'26</span>
+      <div class="bar-track"><div class="bar-fill" style="width:85%"></div></div>
+      <span class="bar-val td-cyan">49.6%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Gross Margin peak (FY22)</span>
+      <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+      <span class="bar-val td-green">52%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Gross Margin trough (FY23)</span>
+      <div class="bar-track"><div class="bar-fill red" style="width:60%"></div></div>
+      <span class="bar-val td-red">44%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Utilization China</span>
+      <div class="bar-track"><div class="bar-fill" style="width:95%"></div></div>
+      <span class="bar-val td-cyan">~90%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Utilization Memory</span>
+      <div class="bar-track"><div class="bar-fill green" style="width:90%"></div></div>
+      <span class="bar-val td-green">&gt;85%</span>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="grid-3">
+      <div class="kpi">
+        <span class="kpi-label">P/E (TTM, GAAP ujemny)</span>
+        <span class="kpi-value amber">~42x</span>
+        <span class="kpi-sub">Na Eulerpool (częściowo historyczny)</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Dywidenda quarterly</span>
+        <span class="kpi-value">$0.20/sh</span>
+        <span class="kpi-sub">Yield ~1.2%; zatwierdzone mar'26</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Buyback Q1 FY2026</span>
+        <span class="kpi-value">$6.7M</span>
+        <span class="kpi-sub">0.2M akcji — umiarkowany</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 03 ANALITYCY ══ -->
+<div class="section" id="s03">
+  <div class="section-head">
+    <span class="section-num">// 03</span>
+    <span class="section-title">Analitycy Wall Street</span>
+    <span class="tag tag-green">3 Strong Buy</span>
+    <span class="tag tag-red">Avg PT poniżej ceny</span>
+  </div>
+  <div class="section-body">
+
+    <div class="warning-banner">
+      <span class="warning-icon">⚡</span>
+      <span><strong>Uwaga na pokrycie analityczne:</strong> KLIC jest followowany tylko przez <strong>3 analityków</strong> wg stockanalysis.com — bardzo słabe pokrycie dla spółki $3.5B. Avg PT $54.67 implikuje -18% downside vs bieżąca cena ~$67. To klasyczna sytuacja gdzie cena wyprzedziła konsensus po katalyzatorze TCB/HBM. Tickernerd pokazuje 14 Buy / 14 Hold / 1 Sell — rozbieżność wynika z różnych baz źródłowych.</span>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:18px;">
+      <div>
+        <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Konsensus (Tickernerd — 29 analityków)</div>
+        <div class="consensus-row">
+          <span class="c-label">BUY</span>
+          <div class="bar-track" style="height:8px;"><div class="bar-fill green" style="width:48%"></div></div>
+          <span class="c-count">14</span>
+        </div>
+        <div class="consensus-row">
+          <span class="c-label">HOLD</span>
+          <div class="bar-track" style="height:8px;"><div class="bar-fill amber" style="width:48%"></div></div>
+          <span class="c-count">14</span>
+        </div>
+        <div class="consensus-row">
+          <span class="c-label">SELL</span>
+          <div class="bar-track" style="height:8px;"><div class="bar-fill red" style="width:3%"></div></div>
+          <span class="c-count">1</span>
+        </div>
+        <div style="margin-top:14px;" class="kpi">
+          <span class="kpi-label">Median PT (Tickernerd)</span>
+          <span class="kpi-value amber">$1 300</span>
+          <span class="kpi-sub">⚠ Prawdopodobnie pomyłka — to PT dla KLAC! Dla KLIC brak wiarygodnego consensus.</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Znane targety / ratingi</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dom / źródło</th><th>Rating</th><th class="td-right">PT / nota</th></tr></thead>
+            <tbody>
+              <tr><td>Needham & Co.</td><td class="td-cyan">Buy</td><td class="td-right td-cyan">aktywny coverage</td></tr>
+              <tr><td>D.A. Davidson</td><td class="td-cyan">Buy</td><td class="td-right td-cyan">aktywny coverage</td></tr>
+              <tr><td>Steelhead Sec.</td><td class="td-cyan">Buy</td><td class="td-right td-cyan">aktywny coverage</td></tr>
+              <tr><td>Simply Wall St.</td><td class="td-red">Fair Value</td><td class="td-right td-red">$46.67 (DCF)</td></tr>
+              <tr><td>StockAnalysis avg</td><td class="td-red">⚠ downside</td><td class="td-right td-red">$54.67 (-18%)</td></tr>
+              <tr><td>Stockinvest.us</td><td class="td-green">Strong Buy</td><td class="td-right td-green">momentum signal</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>Sytuacja analityczna KLIC jest <span class="hl-amber">skomplikowana i kontrowersyjna</span>. DCF modele (Simply Wall St.) wskazują fair value $46.67 — <strong>przy cenie $67 spółka jest technicznie przewartościowana o ~30-44%</strong> na bazie modeli bazowych. Jednocześnie modele te NIE uwzględniają pełnej wartości opcji TCB/HBM — jeśli K&S rzeczywiście zdobędzie znaczący udział w rynku fluxless thermocompression dla HBM4E, fundamenty wyglądają zupełnie inaczej. To klasyczna sytuacja <span class="hl-cyan">growth option pricing</span> — rynek kupuje nie dzisiejsze EPS, ale potencjał za 2-3 lata. <strong>Earnings 5 maja 2026</strong> (Q2 FY2026) to następny kluczowy data point — guidance na H2 zdecyduje o kierunku.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 04 MOMENTUM ══ -->
+<div class="section" id="s04">
+  <div class="section-head">
+    <span class="section-num">// 04</span>
+    <span class="section-title">Momentum & Katalyzatory</span>
+    <span class="tag tag-green">+60% od dołka</span>
+    <span class="tag tag-cyan">HBM Inflection</span>
+  </div>
+  <div class="section-body">
+    <div class="grid-2" style="margin-bottom:18px;">
+      <div>
+        <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Zmiana ceny</div>
+        <div class="signal-row">
+          <span class="signal-name">ATH (luty 2026)</span>
+          <div class="signal-dot dot-red"></div>
+          <span class="signal-val">~$74.87</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">52-tyg. high</span>
+          <div class="signal-dot dot-red"></div>
+          <span class="signal-val">$77.50</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">52-tyg. low</span>
+          <div class="signal-dot dot-grey"></div>
+          <span class="signal-val">$26.63</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">12-mies. zwrot</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">+34.6%</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">5-letni zwrot</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">+41.8%</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Od dołka (lut'25)</span>
+          <div class="signal-dot dot-cyan"></div>
+          <span class="signal-val td-cyan">~+150%</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Katalyzatory</div>
+        <div class="signal-row">
+          <span class="signal-name">1. HBM TCB tool (Q1 ship)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">Shipped ✓</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">2. ProMEM launch (mar'26)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">Launched ✓</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">3. Q2 Earnings (05 maj)</span>
+          <div class="signal-dot dot-amber"></div>
+          <span class="signal-val td-amber">Guidance H2</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">4. TCB +70% FY2026</span>
+          <div class="signal-dot dot-cyan"></div>
+          <span class="signal-val td-cyan">W trakcie</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">5. Nowy CEO announcement</span>
+          <div class="signal-dot dot-amber"></div>
+          <span class="signal-val td-amber">Oczekiwany</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">6. SEMICON China (25-27 mar)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">Obecność ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>KLIC jest w trakcie <span class="hl-cyan">supercyklu odreagowania</span> — od 52-tygodniowego minimum $26.63 (okolice II połowy 2024) do ATH $77.50 to wzrost ~191%. Cena akcji wzrosła <strong>15.8% w jeden dzień</strong> po wynikach Q1 FY2026 (4 luty 2026) po tym jak guidance Q2 na EPS $0.67 rozbił consensus $0.30 w pył — 120% over-delivery vs oczekiwania.</p>
+      <p>Shipment pierwszego systemu TCB do HBM (duży producent pamięci, prawdopodobnie Micron lub SK Hynix, do kwalifikacji HBM4E) to <span class="hl-green">game-changer</span> jeśli się powiedzie — każde kolejne zamówienie to $1.25M ASP per tool z wyższą marżą niż tradycyjny ball bonder. Łączny addressable market TCB dla HBM szacowany jest na setki milionów dolarów rocznie przy pełnym rampie. Zarząd prognozuje H2 FY2026 o 15-20% lepiej od H1 — jeśli dowiezie, roczny EPS FY2026 może przekroczyć $2.00 non-GAAP.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 05 TECHNICZNE ══ -->
+<div class="section" id="s05">
+  <div class="section-head">
+    <span class="section-num">// 05</span>
+    <span class="section-title">Analiza Techniczna</span>
+    <span class="tag tag-amber">Pullback od ATH -11%</span>
+  </div>
+  <div class="section-body">
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div>
+        <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Poziomy kluczowe</div>
+        <div class="signal-row">
+          <span class="signal-name">52-tyg. high / ATH</span>
+          <div class="signal-dot dot-red"></div>
+          <span class="signal-val">$77.50</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">ATH close (11 lut)</span>
+          <div class="signal-dot dot-red"></div>
+          <span class="signal-val">$74.87</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Resistance 1</span>
+          <div class="signal-dot dot-amber"></div>
+          <span class="signal-val td-amber">$70–72</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Bieżąca cena</span>
+          <div class="signal-dot dot-cyan"></div>
+          <span class="signal-val td-cyan">~$67</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Support 1 (post-earnings)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">$62–65</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Support 2 (pre-Q1 lvl)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">$50–55</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Głęboki support (gap fill)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">$42–47</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Sygnały techniczne</div>
+        <div class="signal-row">
+          <span class="signal-name">Trend dzienny</span>
+          <div class="signal-dot dot-cyan"></div>
+          <span class="signal-val td-cyan">Bullish (rising)</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">MACD (3m)</span>
+          <div class="signal-dot dot-red"></div>
+          <span class="signal-val td-red">Sell signal</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">MA krótkoterminowe</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">Powyżej długoterm.</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Pivot (19 lis 2025)</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">+45.5% od dołka</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Stockscan technicals</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">9 Buy / 2 Sell</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Volume on breakout</span>
+          <div class="signal-dot dot-green"></div>
+          <span class="signal-val td-green">Rising ↑</span>
+        </div>
+        <div class="signal-row">
+          <span class="signal-name">Earnings gap (4 lut)</span>
+          <div class="signal-dot dot-cyan"></div>
+          <span class="signal-val td-cyan">+15.8% — gap open</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:0.8rem;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Mapa poziomów cenowych</div>
+    <div class="level-chart">
+      <div class="level-line dashed level-line-red" style="top:6%;">
+        <span class="level-label" style="top:6%;color:var(--red);">52w High</span>
+        <span class="level-price" style="top:6%;color:var(--red);">$77.50</span>
+      </div>
+      <div class="level-line dashed level-line-amber" style="top:22%;">
+        <span class="level-label" style="top:22%;color:var(--amber);">Resistance 1</span>
+        <span class="level-price" style="top:22%;color:var(--amber);">$70–72</span>
+      </div>
+      <div class="level-line solid level-line-cyan" style="top:36%;">
+        <span class="level-label" style="top:36%;color:var(--cyan);">► CENA</span>
+        <span class="level-price" style="top:36%;color:var(--cyan);">~$67</span>
+      </div>
+      <div class="level-line dashed level-line-green" style="top:52%;">
+        <span class="level-label" style="top:52%;color:var(--green);">S1 — post-earnings</span>
+        <span class="level-price" style="top:52%;color:var(--green);">$62–65</span>
+      </div>
+      <div class="level-line dashed level-line-green" style="top:68%;">
+        <span class="level-label" style="top:68%;color:var(--green);">S2 — pre-Q1 level</span>
+        <span class="level-price" style="top:68%;color:var(--green);">$50–55</span>
+      </div>
+      <div class="level-line dashed level-line-green" style="top:84%;">
+        <span class="level-label" style="top:84%;color:var(--green);">S3 — DCF fair value</span>
+        <span class="level-price" style="top:84%;color:var(--green);">$42–47</span>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>KLIC doświadczyło klasycznego <span class="hl-cyan">earnings gap-up</span> w lutym 2026 (+15.8%), po którym cena konsoliduje w przedziale $62-70. Techniczne sygnały: wzrostowy trend dominuje, MAs krótkoterminowe powyżej długoterminowych, ale MACD (3m) na sell — typowe dla spółki po parabolicznym skoku. <span class="hl-amber">Ryzyko gap-fill</span> do $50-55 przy negatywnym news flow (opóźnienie TCB ramp, brak CEO, słabe macro). Optymalny punkt wejścia technicznie: pullback do $62-65 z SL pod $58.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 06 STRATEGIA WEJŚCIA ══ -->
+<div class="section" id="s06">
+  <div class="section-head">
+    <span class="section-num">// 06</span>
+    <span class="section-title">Strategia Wejścia</span>
+    <span class="tag tag-blue">3 Tiers</span>
+  </div>
+  <div class="section-body">
+
+    <div class="tier">
+      <div class="tier-head t1">
+        <span class="tier-name">Tier 1 — Optymalny pullback</span>
+        <span class="tag tag-cyan">Poczekaj na zejście</span>
+      </div>
+      <div class="tier-body">
+        <div><div class="tier-item-label">Strefa wejścia</div><div class="tier-item-val">$62 – $66</div></div>
+        <div><div class="tier-item-label">Stop-Loss</div><div class="tier-item-val td-red">$57 (-10%)</div></div>
+        <div><div class="tier-item-label">Target / Upside</div><div class="tier-item-val td-green">$80–90 (+25-40%)</div></div>
+        <div><div class="tier-item-label">Risk/Reward</div><div class="tier-item-val td-green">~3:1</div></div>
+        <div><div class="tier-item-label">Horyzont</div><div class="tier-item-val">6–12 mies.</div></div>
+        <div><div class="tier-item-label">Kontekst</div><div class="tier-item-val td-dim">Konsolidacja po earnings</div></div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-head t2">
+        <span class="tier-name">Tier 2 — Strefa rynkowa (obecna)</span>
+        <span class="tag tag-amber">Ryzyko: avg PT poniżej</span>
+      </div>
+      <div class="tier-body">
+        <div><div class="tier-item-label">Strefa wejścia</div><div class="tier-item-val">$66 – $70</div></div>
+        <div><div class="tier-item-label">Stop-Loss</div><div class="tier-item-val td-red">$60 (-12%)</div></div>
+        <div><div class="tier-item-label">Target / Upside</div><div class="tier-item-val td-green">$85–95 (+25-35%)</div></div>
+        <div><div class="tier-item-label">Risk/Reward</div><div class="tier-item-val td-amber">~2:1</div></div>
+        <div><div class="tier-item-label">Horyzont</div><div class="tier-item-val">9–18 mies.</div></div>
+        <div><div class="tier-item-label">Kontekst</div><div class="tier-item-val td-dim">Wymagana wiara w TCB ramp</div></div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-head t3">
+        <span class="tier-name">Tier 3 — Głęboka korekta / value</span>
+        <span class="tag tag-blue">Gap-fill / makro sell-off</span>
+      </div>
+      <div class="tier-body">
+        <div><div class="tier-item-label">Strefa wejścia</div><div class="tier-item-val">$46 – $55</div></div>
+        <div><div class="tier-item-label">Stop-Loss</div><div class="tier-item-val td-red">$40 (-15%)</div></div>
+        <div><div class="tier-item-label">Target / Upside</div><div class="tier-item-val td-green">$80–100 (+60-100%)</div></div>
+        <div><div class="tier-item-label">Risk/Reward</div><div class="tier-item-val td-green">~5:1</div></div>
+        <div><div class="tier-item-label">Horyzont</div><div class="tier-item-val">12–24 mies.</div></div>
+        <div><div class="tier-item-label">Kontekst</div><div class="tier-item-val td-dim">Przy zachowaniu TCB thesis</div></div>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:14px;">
+      <p><span class="hl-amber">Taktyczna uwaga:</span> Przy cenie ~$67 jesteś w Tier 2 — masz upside ale analitycy mają średni PT <strong>poniżej</strong> bieżącej ceny. To pozycja spekulacyjna na TCB ramp story, nie klasyczna value play. <strong>Earnings 05.05.2026</strong> (Q2 FY26) to najbliższy binary event — guidance H2 powyżej $500M revenue za półrocze byłoby silnym potwierdzeniem tezy. Poniżej $62 (S1) otwiera się ładniejsze R/R. Vs. avg analyst PT $54.67 — każda cena powyżej $55 to zakład na TCB opcję, nie na bazowe fundamenty.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 07 SCENARIUSZE ══ -->
+<div class="section" id="s07">
+  <div class="section-head">
+    <span class="section-num">// 07</span>
+    <span class="section-title">Scenariusze 12–18 miesięczne</span>
+  </div>
+  <div class="section-body">
+    <div class="scenario-grid">
+      <div class="scenario-card sc-bull">
+        <div class="sc-head">🚀 Bull Case</div>
+        <div class="sc-price">$95–120</div>
+        <div class="sc-prob">Prawdopodobieństwo: 25%</div>
+        <div class="sc-text">TCB ramp do HBM4E przebiega sprawnie, K&S zdobywa 30-40% rynku fluxless TCB dla pamięci AI. Nowy CEO ogłoszony — rynek reaguje pozytywnie. H2 FY2026 +20% vs H1, roczny EPS FY2027 przekracza $3.00. Vertical wire wchodzi do high-volume w FY2027. Rerating do 35-40x forward EPS.</div>
+      </div>
+      <div class="scenario-card sc-base">
+        <div class="sc-head">📊 Base Case</div>
+        <div class="sc-price">$70–85</div>
+        <div class="sc-prob">Prawdopodobieństwo: 45%</div>
+        <div class="sc-text">TCB ramp przebiega zgodnie z guidancem (+70% FY26), H2 lepszy od H1 o ~15%. General semiconductor pozostaje powyżej 80% utilization. FY2027 revenue zbliża się do $1B. EPS FY2026 non-GAAP ~$2.00. Spółka handluje 35-40x forward EPS. Nowy CEO zatrudniony w Q2-Q3 2026.</div>
+      </div>
+      <div class="scenario-card sc-bear">
+        <div class="sc-head">🐻 Bear Case</div>
+        <div class="sc-price">$38–52</div>
+        <div class="sc-prob">Prawdopodobieństwo: 30%</div>
+        <div class="sc-text">TCB kwalifikacje opóźniają się o 2-4 kwartały (techniczne trudności lub zmiana roadmapy EMIB/CoWoS u klientów). China utilization spada. Brak stałego CEO — "leadership vacuum" szkodzi egzekucji. Cena wraca do DCF fair value $46.67 lub gap-fill do $50. Na tym poziomie KLIC jest fundamentalnie tanie.</div>
+      </div>
+    </div>
+    <div class="prose" style="margin-top:14px;">
+      <p>KLIC to <strong>binary story</strong> — w znacznie większym stopniu niż APH. Jeśli TCB/HBM ramp się powiedzie, spółka trafi na radar funduszy i wycena dramatycznie urośnie. Jeśli nie — cena wróci do poziomów bazowych ($45-55). Kluczowe pytanie: czy fluxless thermocompression KLIC zostanie wybrany jako preferowana metoda assembly dla HBM4E zamiast hybrid bonding (konkurencja: Besi, Shinkawa)? <span class="hl-amber">Odpowiedź poznamy w kolejnych 2-3 kwartałach.</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 08 RYZYKA ══ -->
+<div class="section" id="s08">
+  <div class="section-head">
+    <span class="section-num">// 08</span>
+    <span class="section-title">Ryzyka</span>
+    <span class="tag tag-red">3x HIGH · 3x MED · 1x LOW</span>
+  </div>
+  <div class="section-body">
+
+    <div class="risk-item">
+      <span class="risk-badge risk-HIGH">HIGH</span>
+      <div>
+        <div class="risk-title">Brak stałego CEO — leadership vacuum</div>
+        <div class="risk-desc">Dr. Fusen Chen przeszedł na emeryturę z powodów zdrowotnych (X 2025). Interim CEO/CFO Lester Wong pełni podwójną rolę. Kluczowe decyzje strategiczne (TCB roadmap, partnerstwa, M&A) są potencjalnie spowalnianie. Przy najbardziej krytycznym momencie technology transition — to poważne ryzyko egzekucyjne. Każde opóźnienie w nominacji stałego CEO = negatywny signal.</div>
+      </div>
+    </div>
+
+    <div class="risk-item">
+      <span class="risk-badge risk-HIGH">HIGH</span>
+      <div>
+        <div class="risk-title">TCB ramp delay / technology risk</div>
+        <div class="risk-desc">Fluxless thermocompression jest nową technologią w masowej produkcji. Kwalifikacja HBM4E u klienta pamięci może potrwać 2-4 kwartały. Alternatywy: hybrid bonding (Besi dominuje, Shinkawa), zaawansowane Cu-Cu bonding. Jeśli klienci wybiorą inną technologię — TCB story imploduje. Każde "qualifications proceeding" bez konkretnych zamówień = bearish signal.</div>
+      </div>
+    </div>
+
+    <div class="risk-item">
+      <span class="risk-badge risk-HIGH">HIGH</span>
+      <div>
+        <div class="risk-title">Wycena vs fundamenty bazowe</div>
+        <div class="risk-desc">Przy cenie ~$67 i DCF fair value $46.67 (Simply Wall St.) rynek płaci ~44% premię za TCB option value. Jeśli TCB nie rampuje zgodnie z oczekiwaniami w ciągu 2-3 kwartałów — cena wróci do DCF fair value. P/E TTM (częściowo negatywne GAAP) sugeruje że bazowa spółka ball bonding jest warta $40-50. Avg analyst PT $54.67 to kolejna czerwona flaga.</div>
+      </div>
+    </div>
+
+    <div class="risk-item">
+      <span class="risk-badge risk-MED">MED</span>
+      <div>
+        <div class="risk-title">Ekspozycja China (~40-50% rev)</div>
+        <div class="risk-desc">Znaczna część przychodów pochodzi z chińskich OSAT i fabów (utilization ~90%). Manufacturing w Singapurze chroni przed bezpośrednimi taryfami US→SG→CN, ale eskalacja trade war lub chińskie restrykcje na import sprzętu semicap mogą ograniczyć popyt. China utilization ~90% to też "ceiling" — dalszy wzrost stamtąd trudny.</div>
+      </div>
+    </div>
+
+    <div class="risk-item">
+      <span class="risk-badge risk-MED">MED</span>
+      <div>
+        <div class="risk-title">Cykliczność ball bonding — core business</div>
+        <div class="risk-desc">~52% przychodów to wciąż tradycyjny ball bonding — segment który w FY2023 spadł o 58% YoY. Jeśli semiconductor cycle skręci w dół (recessja, AI capex slowdown) — ball bonding znowu pierwszy ucierpi. Obecne utilization >80% to zdrowe poziomy, ale historycznie cykliczne piki poprzedzały gwałtowne wyhamowanie.</div>
+      </div>
+    </div>
+
+    <div class="risk-item">
+      <span class="risk-badge risk-MED">MED</span>
+      <div>
+        <div class="risk-title">Ujemne FCF w Q1 FY2026</div>
+        <div class="risk-desc">Operating FCF -$8.9M, adjusted FCF -$11.6M w Q1 FY2026 — mimo rosnącej sprzedaży. Spółka buduje inventory pod przyszłe dostawy (bull case: demand visibility) ale tworzy też ryzyko jeśli zamówienia nie przyjdą (inventory write-down). Zmiana z tradycyjnie pozytywnego FCF jest sygnałem do monitorowania.</div>
+      </div>
+    </div>
+
+    <div class="risk-item">
+      <span class="risk-badge risk-LOW">LOW</span>
+      <div>
+        <div class="risk-title">Automotive / Industrial — long-term trend OK</div>
+        <div class="risk-desc">Wedge bonding (~13% rev) skierowany na automotive / power electronics poprawia się powoli (+15% QoQ w Q1'26). Długoterminowo EV adoption i power modules to pozytywny driver, ale near-term headwindy z opóźnieniami EV ramp utrzymują się. ASTERION-TW (marzec 2026) to nowy produkt targetujący ten segment.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 09 WERDYKT ══ -->
+<div class="section" id="s09">
+  <div class="section-head">
+    <span class="section-num">// 09</span>
+    <span class="section-title">Werdykt</span>
+    <span class="tag tag-amber">SPEKULACYJNY BUY</span>
+  </div>
+  <div class="section-body">
+    <div class="verdict-box">
+      <div class="verdict-rating">
+        <span class="verdict-stars">★★★☆☆</span>
+        <span class="verdict-label">SPEKULACYJNY BUY</span>
+        <span class="tag tag-red" style="margin-left:8px;">Ryzyko: WYSOKIE</span>
+      </div>
+      <div class="verdict-text">
+        <p>KLIC to <strong>high-risk / high-reward zakład na technologiczny inflection point</strong>. Bazowy biznes ball bonding jest w solidnym ożywieniu (utilization >80%, revenue +20% YoY), ale prawdziwy driver wyceny to TCB/fluxless thermocompression dla HBM — sektor który dopiero raczkuje. <strong>Shipping pierwszego systemu TCB do dużego producenta pamięci</strong> (prawdopodobnie kwalifikacja HBM4E) to kamień milowy, ale kwalifikacja ≠ zamówienie w high-volume.</p>
+        <p>Problem: <strong>cena ~$67 już dyskontuje sukces TCB</strong>. Analitycy z avg PT $54.67 sugerują że rynek jest przed fundamentami. DCF fair value $46.67 to "floor" jeśli TCB nie wypali. Między $46 a $67 jest ~30% ryzyko downside, a potencjalny upside w bull case to $90-120 (+35-80%). <span class="hl-amber">Asymetria jest, ale tylko przy przekonaniu co do TCB story.</span></p>
+        <p><strong>Kluczowy watch:</strong> Earnings Q2 FY2026 (05.05.2026) — guidance H2 jest być albo nie być dla bieżącej wyceny. Jeśli management potwierdzi H2 o 15-20% lepszy od H1 i poda konkretne update na TCB qualifications — spółka może odbić do $75-80. Jeśli rozczaruje — powrót do $52-58. <span class="hl-red">Brak stałego CEO to dodatkowe ryzyko których nie można ignorować.</span></p>
+        <p><strong>Pozycjonowanie:</strong> Nie kupuj w całości teraz przy $67. Poczekaj na pullback do $62-65 (Tier 1) lub graj połową pozycji teraz, połową przy ewentualnym osłabieniu przed Q2 earnings. SL $57. Dla agresywnych — watch closely na Q2 guidance jako trigger.</p>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="grid-4">
+      <div class="kpi">
+        <span class="kpi-label">Cena (01.04.2026)</span>
+        <span class="kpi-value cyan">~$67</span>
+        <span class="kpi-sub">NASDAQ: KLIC</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Target bull/base</span>
+        <span class="kpi-value green">$80–95</span>
+        <span class="kpi-sub">12-18m przy TCB ramp</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">DCF floor / bear</span>
+        <span class="kpi-value red">$46–52</span>
+        <span class="kpi-sub">Jeśli TCB opóźnienie</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Nearest catalyst</span>
+        <span class="kpi-value amber">05 Maj</span>
+        <span class="kpi-sub">Q2 FY2026 Earnings</span>
+      </div>
+    </div>
+
+    <div class="inline-tags" style="margin-top:14px;">
+      <span class="tag tag-cyan">TCB / HBM inflection</span>
+      <span class="tag tag-cyan">Advanced Packaging</span>
+      <span class="tag tag-green">Revenue recovery +20% YoY</span>
+      <span class="tag tag-green">Non-GAAP EPS beat +33%</span>
+      <span class="tag tag-amber">Spekulacyjna premia</span>
+      <span class="tag tag-amber">Avg PT poniżej ceny</span>
+      <span class="tag tag-red">Brak stałego CEO</span>
+      <span class="tag tag-red">TCB ramp execution risk</span>
+      <span class="tag tag-blue">Q2 Earnings 05 Maj</span>
+      <span class="tag tag-blue">ProMEM — mar'26 launch</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  ANAL REPORT — KLIC / KULICKE & SOFFA INDUSTRIES — wygenerowano 01.04.2026<br>
+  Dane: Q1 FY2026 earnings 04.02.2026, ProMEM launch 24.03.2026, stockanalysis.com, stocktitan.net, insidermonkey.com, simplywall.st<br>
+  ⚠ Raport wyłącznie informacyjny. Nie stanowi rekomendacji inwestycyjnej. Inwestuj na własne ryzyko.
+</div>
+
+</body>
+</html>
