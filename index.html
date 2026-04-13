@@ -1767,6 +1767,20 @@
 
       <div class="divider"></div>
 
+      <div class="card-title" style="margin-bottom: 16px;">Dane kontaktowe</div>
+      <div style="margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
+          <span style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; width: 40px; flex-shrink: 0;">Mail</span>
+          <a href="mailto:kbrz77@proton.me" style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s;" onmouseover="this.style.color='var(--pink)'" onmouseout="this.style.color='var(--text)'">kbrz77@proton.me</a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; width: 40px; flex-shrink: 0;">Tel</span>
+          <a href="tel:+48796579480" style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s;" onmouseover="this.style.color='var(--pink)'" onmouseout="this.style.color='var(--text)'">796 579 480</a>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
       <div class="positioning-bar" style="margin: 0; padding: 32px 40px; border-left-width: 4px; background: linear-gradient(135deg, rgba(235,100,52,0.08), transparent);">
         <div class="positioning-bar-title" style="font-size: 12px; color: var(--pink); margin-bottom: 12px;">Pierwsze pytania są bezpłatne</div>
         <div class="positioning-bar-text" style="font-size: 17px; color: var(--text); line-height: 1.75;">Zanim zdecydujesz się na pakiet, możesz zadać kilka pytań wstępnych — bez zobowiązań i bez opłat. Chcę, żebyś wiedział, z kim rozmawiasz, zanim powierzysz mi swój budżet.</div>
@@ -1776,17 +1790,17 @@
     <div class="contact-form">
       <div class="form-group">
         <label class="form-label" for="f-name">Imię (lub pseudonim)</label>
-        <input type="text" id="f-name" class="form-input" placeholder="Jak mam się do Ciebie zwracać?" autocomplete="given-name">
+        <input type="text" id="f-name" name="imie" class="form-input" placeholder="Jak mam się do Ciebie zwracać?" autocomplete="given-name">
         <div class="form-error-msg" id="err-name">To pole jest wymagane.</div>
       </div>
       <div class="form-group">
         <label class="form-label" for="f-email">Adres e-mail</label>
-        <input type="email" id="f-email" class="form-input" placeholder="Twój adres e-mail" autocomplete="email">
+        <input type="email" id="f-email" name="email" class="form-input" placeholder="Twój adres e-mail" autocomplete="email">
         <div class="form-error-msg" id="err-email">Podaj poprawny adres e-mail.</div>
       </div>
       <div class="form-group">
         <label class="form-label" for="f-package">Interesuje mnie</label>
-        <select id="f-package" class="form-select">
+        <select id="f-package" name="pakiet" class="form-select">
           <option value="">— wybierz pakiet —</option>
           <option value="agent">Pakiet Agent (zakup przez agenta, 3%)</option>
           <option value="doradztwo">Pakiet Doradztwo (konsultacja, 300 zł)</option>
@@ -1795,7 +1809,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="f-budget">Budżet (orientacyjnie)</label>
-        <select id="f-budget" class="form-select">
+        <select id="f-budget" name="budzet" class="form-select">
           <option value="">— wybierz przedział —</option>
           <option>5 000 – 10 000 zł</option>
           <option>10 000 – 20 000 zł</option>
@@ -1806,7 +1820,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="f-msg">Czego szukasz / co Cię interesuje</label>
-        <textarea id="f-msg" class="form-textarea" placeholder="Powiedz mi, co słuchasz, czego Ci brakuje w obecnym zestawie lub czym jesteś zainteresowany. Im więcej napiszesz, tym lepsza będzie pierwsza odpowiedź." oninput="updateCharCount(this)"></textarea>
+        <textarea id="f-msg" name="wiadomosc" class="form-textarea" placeholder="Powiedz mi, co słuchasz, czego Ci brakuje w obecnym zestawie lub czym jesteś zainteresowany. Im więcej napiszesz, tym lepsza będzie pierwsza odpowiedź." oninput="updateCharCount(this)"></textarea>
         <div class="form-char-count" id="char-count">0 / 1000 znaków</div>
         <div class="form-error-msg" id="err-msg">Opisz czego szukasz (min. 20 znaków).</div>
       </div>
@@ -1825,7 +1839,7 @@
   <div class="footer-meta">
     Niezależny agent zakupowy · Hi-Fi &amp; High-End Audio<br>
     Polska / Online · 2026<br>
-    <a href="#contact">Napisz do mnie</a>
+    <a href="mailto:kbrz77@proton.me">kbrz77@proton.me</a> · <a href="tel:+48796579480">796 579 480</a>
   </div>
 </footer>
 
@@ -2115,10 +2129,34 @@ function handleSubmit(e) {
   btn.disabled = true;
   btn.textContent = 'Wysyłanie…';
 
-  setTimeout(() => {
-    btn.style.display = 'none';
-    document.getElementById('form-confirm').style.display = 'block';
-  }, 800);
+  const formData = new FormData();
+  formData.append('imie',      document.getElementById('f-name').value.trim());
+  formData.append('email',     document.getElementById('f-email').value.trim());
+  formData.append('pakiet',    document.getElementById('f-package').value);
+  formData.append('budzet',    document.getElementById('f-budget').value);
+  formData.append('wiadomosc', document.getElementById('f-msg').value.trim());
+  formData.append('_subject',  'Nowe zapytanie — audioZorro');
+
+  fetch('https://formspree.io/f/mlgaeobj', {
+    method: 'POST',
+    body: formData,
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(res => {
+    if (res.ok) {
+      btn.style.display = 'none';
+      document.getElementById('form-confirm').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Wyślij wiadomość →';
+      alert('Błąd wysyłki. Napisz bezpośrednio na kbrz77@proton.me');
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.textContent = 'Wyślij wiadomość →';
+    alert('Błąd połączenia. Napisz bezpośrednio na kbrz77@proton.me');
+  });
 }
 
 // ─── COLOR PICKER ───
